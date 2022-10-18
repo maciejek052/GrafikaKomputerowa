@@ -23,6 +23,7 @@ namespace Zadanie1
         Shape lastShape = null;
         Shape newShape = null;
         Line line = null;
+        Point p = new Point();
         TextBlock text;
         Point currentPoint = new Point();
         string mode = "rectangle";
@@ -69,7 +70,11 @@ namespace Zadanie1
 
         private void canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Shape newShape = null;
+            p = new Point(); 
+            p = e.GetPosition(this);
+            currentPoint = p; 
+            newShape = null;
+            line = null; 
             Mouse.Capture(canvas);
             switch (mode)
             {
@@ -91,8 +96,9 @@ namespace Zadanie1
             }
             if (mode == "text")
             {
-                Point p = new Point();
+                p = new Point();
                 p = e.GetPosition(this);
+                currentPoint = p;
                 text = new TextBlock();
                 Canvas.SetLeft(text, p.X);
                 Canvas.SetTop(text, p.Y);
@@ -100,8 +106,9 @@ namespace Zadanie1
             }
             else if (mode == "line")
             {
-                Point p = new Point();
+                p = new Point();
                 p = e.GetPosition(this);
+                currentPoint = p;
                 line = new Line();
                 line.Stroke = brush;
                 line.X1 = line.X2 = p.X;
@@ -115,7 +122,7 @@ namespace Zadanie1
                 lastShape = newShape;
                 newShape.Stroke = brush;
                 newShape.Fill = fill; 
-                Point p = new Point();
+                p = new Point();
                 p = e.GetPosition(this);
                 currentPoint = p;
                 newShape.SetValue(Canvas.TopProperty, p.Y);
@@ -128,7 +135,6 @@ namespace Zadanie1
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 if (mode == "pencil")
@@ -142,15 +148,17 @@ namespace Zadanie1
                     currentPoint = e.GetPosition(this);
                     canvas.Children.Add(line);
                 }
-                else if (mode == "line" && line != null)
+                else if (mode == "line" /*&& line != null*/)
                 {
-                    Point p = e.GetPosition(this);
+                    if (line is null)
+                        line = new Line(); 
+                    p = e.GetPosition(this);
                     line.X2 = p.X;
                     line.Y2 = p.Y;
                 }
                 else
                 {
-                    Point p = e.GetPosition(this);
+                    p = e.GetPosition(this);
                     var top = (double)lastShape.GetValue(Canvas.TopProperty);
                     var left = (double)lastShape.GetValue(Canvas.LeftProperty);
                     var height = p.Y - top;
