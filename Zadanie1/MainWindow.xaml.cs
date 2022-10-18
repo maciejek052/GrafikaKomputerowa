@@ -74,6 +74,7 @@ namespace Zadanie1
             p = e.GetPosition(this);
             currentPoint = p; 
             newShape = null;
+            lastShape = newShape; 
             line = null; 
             Mouse.Capture(canvas);
             switch (mode)
@@ -158,6 +159,8 @@ namespace Zadanie1
                 }
                 else
                 {
+                    if (lastShape is null)
+                        lastShape = new Rectangle(); 
                     p = e.GetPosition(this);
                     var top = (double)lastShape.GetValue(Canvas.TopProperty);
                     var left = (double)lastShape.GetValue(Canvas.LeftProperty);
