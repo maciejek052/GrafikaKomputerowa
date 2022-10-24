@@ -17,6 +17,7 @@ using System.IO;
 using System.Drawing;
 using Color = System.Drawing.Color;
 using System.Diagnostics;
+using Image = System.Windows.Controls.Image;
 
 namespace Zadanie2_v2
 {
@@ -34,7 +35,7 @@ namespace Zadanie2_v2
 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); 
         }
 
         private void openFile(object sender, RoutedEventArgs e)
@@ -60,8 +61,7 @@ namespace Zadanie2_v2
                 ppmImg.StreamSource = memoryStream;
                 ppmImg.EndInit();
                 bitmapImage = ppmImg;
-                Img.Source(bitmapImage); 
-
+                Img.Source = bitmapImage; 
             }
             filePath = openDialog.FileName; 
         }
