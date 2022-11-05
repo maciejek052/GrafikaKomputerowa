@@ -17,7 +17,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="9*"/>
             </Grid.ColumnDefinitions>
-            <Image x:Name="Img" Source="bitmapImage"/>
+            <Image x:Name="Img" Source="bitmapImage2" />
         </Grid>
     </DockPanel>
 </Window>
