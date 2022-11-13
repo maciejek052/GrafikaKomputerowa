@@ -1,0 +1,39 @@
+﻿<Window x:Class="Zadanie4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Zadanie4"
+        mc:Ignorable="d"
+        Title="Zadanie 4" Height="450" Width="800">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Plik">
+                <MenuItem Header="Otwórz" Click="openFile" />
+                <MenuItem Header="Resetuj obraz" Click="Reset" />
+            </MenuItem>
+            <MenuItem Header="Przekształcenia punktowe">
+                <MenuItem Header="Dodawanie" Click="ApplyTrans" Tag="add" />
+                <MenuItem Header="Odejmowanie" Click="ApplyTrans" Tag="subtract"/>
+                <MenuItem Header="Mnożenie" Click="ApplyTrans" Tag="multiply" />
+                <MenuItem Header="Dzielenie" Click="ApplyTrans" Tag="divide"/>
+                <MenuItem Header="Zmiana jasności" Click="ApplyTrans" Tag="brightness"/>
+                <MenuItem Header="Przejście do skali szarości 1" Click="ApplyTrans" Tag="grayscale1"/>
+                <MenuItem Header="Przejście do skali szarości 2" Click="ApplyTrans" Tag="grayscale2" />
+            </MenuItem>
+            <MenuItem Header="Metody polepszania jakości obrazów">
+                <MenuItem Header="Filtr wygładzający (uśredniający)" Click="ApplyFilter" Tag="average"/>
+                <MenuItem Header="Filtr medianowy" Click="ApplyFilter" Tag="median"/>
+                <MenuItem Header="Filtr Sobela (wykrywanie krawędzi)" Click="ApplyFilter" Tag="edges"/>
+                <MenuItem Header="Filtr górnoprzepustowy wyostrzający" Click="ApplyFilter" Tag="highpass"/>
+                <MenuItem Header="Filtr rozmycie gaussowskie" Click="ApplyFilter" Tag="gaussin"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="9*"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="Img" Source="bitmapImage"/>
+        </Grid>
+    </DockPanel>
+</Window>
