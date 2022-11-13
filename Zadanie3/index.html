@@ -13,7 +13,7 @@
 
 <body>
 
-    <label for="colorpicker">RGB:</label>
+    <label for="colorpicker">RGB/Mouse pick:</label>
     <input type="color" id="colorpicker" value="#0000ff" onchange="convertRGB()"><br>
     <label for="h">h: (0-360)</label>
     <input type="number" id="h" min="0" max="360" onchange="convertHSV()">
@@ -29,10 +29,11 @@
     <input type="number" id="y" min="0" max="1" step="0.01" onchange="convertCMYK()">
     <label for="k">k: (0-1)</label>
     <input type="number" id="k" min="0" max="1" step="0.01" onchange="convertCMYK()"><br>
-    <input type="checkbox" id="changeBg" name="changeBg" checked>
-    <label for="changeBg">Change background</label>
-    <button onclick="updateColor()">Change cube color</button>
-    
+    <input type="checkbox" id="rgbCube" name="rgbCube" checked>
+    <label for="changeBg">RGB cube</label>
+    <button onclick="updateCubeColor()">Change cube color</button>
+    <button onclick="updateBackgroundColor()">Change background color</button>
+
 </body>
 
 </html>

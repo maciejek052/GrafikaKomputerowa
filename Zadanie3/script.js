@@ -14,11 +14,31 @@ const light = new THREE.DirectionalLight(0xffffff, 1)
 light.position.set(-1, 2, 10)
 scene.add(light)
 
+// RGB cube
+var faceIndices = ['a', 'b', 'c'];
+var vertexIndex, point;
+geometry.faces.forEach(function (face) {
+    for (var i = 0; i < 3; i++) {
+        vertexIndex = face[faceIndices[i]];
+        point = geometry.vertices[vertexIndex];
+        rgbColor = new THREE.Color(
+            point.x + 0.5,
+            point.y + 0.5,
+            point.z + 0.5
+        );
+        face.vertexColors[i] = rgbColor;
+    }
+});
+
+var matRGB = new THREE.MeshBasicMaterial({
+    vertexColors: THREE.VertexColors
+});
+
 var material = new three.MeshPhongMaterial({
     color: colorValue
 });
 
-var cube = new three.Mesh(geometry, material);
+var cube = new three.Mesh(geometry, matRGB);
 
 cube.rotation.x = Math.PI / 4;
 cube.rotation.y = Math.PI / 4;
@@ -95,28 +115,34 @@ function render() {
 render();
 update(0, totalGameTime);
 
-function updateColor() {
+function updateCubeColor() {
     zpos = cube.rotation.z
     xpos = cube.rotation.x
     ypos = cube.rotation.y
     colorValue = document.getElementById('colorpicker').value
-
-    if (document.getElementById('changeBg').checked) {
-        renderer.setClearColor(colorValue, 0);
-    }
 
     material = new three.MeshPhongMaterial({
         color: colorValue
     });
 
     scene.remove(cube)
-    cube = new three.Mesh(geometry, material);
+
+    if (document.getElementById('rgbCube').checked) {
+        cube = new three.Mesh(geometry, matRGB);
+    } else {
+        cube = new three.Mesh(geometry, material);
+    }
+
     scene.add(cube)
     cube.rotation.x = xpos
     cube.rotation.y = ypos
     cube.rotation.z = zpos
 }
 
+function updateBackgroundColor() {
+    colorValue = document.getElementById('colorpicker').value
+    renderer.setClearColor(colorValue, 0);
+}
 
 function toRadians(angle) {
     return angle * (Math.PI / 180);
