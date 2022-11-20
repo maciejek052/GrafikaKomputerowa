@@ -17,9 +17,9 @@
                 <MenuItem Header="Wyrównanie" Click="ApplyHistogram" Tag="wyr"/>
             </MenuItem>
             <MenuItem Header="Binaryzacja">
-                <MenuItem Header="Ręczny próg" Click="ApplyFilter" Tag="reczny"/>
-                <MenuItem Header="Selekcja Entropii" Click="ApplyFilter" Tag="entropii"/>
-                <MenuItem Header="Procentowa selekcja czarnego" Click="ApplyFilter" Tag="czarny"/>
+                <MenuItem Header="Ręczny próg" Click="ApplyBinarization" Tag="reczny"/>
+                <MenuItem Header="Selekcja Entropii" Click="ApplyBinarization" Tag="entropii"/>
+                <MenuItem Header="Procentowa selekcja czarnego" Click="ApplyBinarization" Tag="czarny"/>
             </MenuItem>
         </Menu>
         <Grid>

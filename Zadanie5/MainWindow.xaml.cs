@@ -261,8 +261,8 @@ namespace Zadanie5
                 {
                     var pixelColor=currentBitmap.GetPixel(x,y);
                     rHistogram[pixelColor.R]++;
-                    rHistogram[pixelColor.G]++;
-                    rHistogram[pixelColor.B]++;
+                    gHistogram[pixelColor.G]++;
+                    bHistogram[pixelColor.B]++;
                 }
         }
     }
