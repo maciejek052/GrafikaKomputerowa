@@ -10,6 +10,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Plik">
                 <MenuItem Header="Otwórz" Click="openFile" />
+                <MenuItem Header="Konwertuj na 1-bitowy" Click="convertClicked" />
                 <MenuItem Header="Resetuj obraz" Click="Reset" />
             </MenuItem>
             <MenuItem Header="Histogram">
@@ -20,6 +21,16 @@
                 <MenuItem Header="Ręczny próg" Click="ApplyBinarization" Tag="reczny"/>
                 <MenuItem Header="Selekcja Entropii" Click="ApplyBinarization" Tag="entropii"/>
                 <MenuItem Header="Procentowa selekcja czarnego" Click="ApplyBinarization" Tag="czarny"/>
+            </MenuItem>
+            <MenuItem Header="Zaawansowana binaryzacja">
+            </MenuItem>
+            <MenuItem Header="Filtry morfologiczne">
+                <MenuItem Header="Dylatacja" Click="Morphology" Tag="dilatation"/>
+                <MenuItem Header="Erozja" Click="Morphology" Tag="erosion"/>
+                <MenuItem Header="Otwarcie" Click="Morphology" Tag="opening"/>
+                <MenuItem Header="Domknięcie" Click="Morphology" Tag="closing"/>
+                <MenuItem Header="Hit-or-miss (pocienianie)" Click="Morphology" Tag="thinning"/>
+                <MenuItem Header="Hit-or-miss (pogrubianie)" Click="Morphology" Tag="thickening"/>
             </MenuItem>
         </Menu>
         <Grid>

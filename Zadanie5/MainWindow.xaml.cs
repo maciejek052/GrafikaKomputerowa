@@ -34,6 +34,7 @@ namespace Zadanie5
         private int[] gHistogram;
         private int[] bHistogram;
         int transValue;
+        bool converted = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -58,6 +59,7 @@ namespace Zadanie5
         {
             currentBitmap = new Bitmap(originalBitmap);
             LoadBitmap();
+            converted = false;
         }
         public void openFile(object sender, RoutedEventArgs e)
         {
@@ -70,6 +72,149 @@ namespace Zadanie5
                 currentBitmap = new Bitmap(originalBitmap);
                 LoadBitmap();
             }
+        }
+
+        private void Morphology(object obj, RoutedEventArgs e)
+        {
+            var mode = ((MenuItem)obj).Tag.ToString();
+            if (currentBitmap != null)
+            {
+                if (!converted)
+                    convertTo1bitBitmap();
+                switch (mode)
+                {
+                    case "dilatation":
+                        Dilatation();
+                        break;
+                    case "erosion":
+                        Erosion();
+                        break;
+                    case "opening":
+                        Erosion();
+                        Dilatation();
+                        break;
+                    case "closing":
+                        Dilatation();
+                        Erosion();
+                        break;
+                    case "thinning":
+                        Thinning();
+                        break;
+                    case "thickening":
+                        Thickening();
+                        break;
+                }
+                LoadBitmap();
+            }
+        }
+
+        private void Dilatation()
+        {
+            var bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
+            for (int x = 0; x < currentBitmap.Width; x++)
+            {
+                for (int y = 0; y < currentBitmap.Height; y++)
+                {
+                    bool includesBlack = false;
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            if (x + i >= 0 && x + i < currentBitmap.Width &&
+                                y + j >= 0 && y + j < currentBitmap.Height &&
+                                currentBitmap.GetPixel(x + i, y + j).R == 0)
+                            {
+                                includesBlack = true;
+                                break;
+                            }
+                        }
+                    }
+                    var newPixelColor = includesBlack ? Color.Black : Color.White;
+                    bitmap.SetPixel(x, y, newPixelColor);
+                }
+            }
+            currentBitmap = bitmap; 
+        }
+        public void Erosion()
+        {
+            var bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
+            for (int x = 0; x < currentBitmap.Width; x++)
+            {
+                for (int y = 0; y < currentBitmap.Height; y++)
+                {
+                    bool includesWhite = false;
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            if (x + i >= 0 && x + i < currentBitmap.Width &&
+                                y + j >= 0 && y + j < currentBitmap.Height &&
+                                currentBitmap.GetPixel(x + i, y + j).R == 255)
+                            {
+                                includesWhite = true;
+                                break;
+                            }
+                        }
+                    }
+                    var newPixelColor = includesWhite ? Color.White : currentBitmap.GetPixel(x,y);
+                    bitmap.SetPixel(x, y, newPixelColor);
+                }
+            }
+            currentBitmap = bitmap;
+        }
+        private void Thinning()
+        {
+            var bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
+            for (int x = 0; x < currentBitmap.Width; x++)
+            {
+                for (int y = 0; y < currentBitmap.Height; y++)
+                {
+                    bool isCompatible = true;
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            if (x + i >= 0 && x + i < currentBitmap.Width &&
+                                y + j >= 0 && y + j < currentBitmap.Height &&
+                                currentBitmap.GetPixel(x + i, y + j) != currentBitmap.GetPixel(x, y))
+                            {
+                                isCompatible = false;
+                                break;
+                            }
+                        }
+                    }
+                    var newPixelColor = isCompatible ? Color.White : currentBitmap.GetPixel(x, y);
+                    bitmap.SetPixel(x, y, newPixelColor);
+                }
+            }
+            currentBitmap = bitmap;
+        }
+        private void Thickening()
+        {
+            var bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
+            for (int x = 0; x < currentBitmap.Width; x++)
+            {
+                for (int y = 0; y < currentBitmap.Height; y++)
+                {
+                    bool isCompatible = true;
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        for (int j = -1; j <= 1; j++)
+                        {
+                            if (x + i >= 0 && x + i < currentBitmap.Width &&
+                                y + j >= 0 && y + j < currentBitmap.Height &&
+                                currentBitmap.GetPixel(x + i, y + j) != currentBitmap.GetPixel(x, y))
+                            {
+                                isCompatible = false;
+                                break;
+                            }
+                        }
+                    }
+                    var newPixelColor = isCompatible ? Color.Black : currentBitmap.GetPixel(x, y);
+                    bitmap.SetPixel(x, y, newPixelColor);
+                }
+            }
+            currentBitmap = bitmap;
         }
         private void ApplyHistogram(object obj, RoutedEventArgs e)
         {
@@ -89,15 +234,15 @@ namespace Zadanie5
                         break;
                     case "roz":
                         rLut = GetExpansionLut(rHistogram);
-                        gLut= GetExpansionLut(gHistogram);
+                        gLut = GetExpansionLut(gHistogram);
                         bLut = GetExpansionLut(bHistogram);
                         break;
                 }
-                for (int x=0; x < currentBitmap.Width; x++)           
+                for (int x = 0; x < currentBitmap.Width; x++)
                     for (int y = 0; y < currentBitmap.Height; y++)
                     {
                         var pixelColor = currentBitmap.GetPixel(x, y);
-                        var newColor= Color.FromArgb(rLut[pixelColor.R], gLut[pixelColor.G], bLut[pixelColor.B]);
+                        var newColor = Color.FromArgb(rLut[pixelColor.R], gLut[pixelColor.G], bLut[pixelColor.B]);
                         currentBitmap.SetPixel(x, y, newColor);
                     }
 
@@ -110,7 +255,7 @@ namespace Zadanie5
             var mode = ((MenuItem)obj).Tag.ToString();
             if (currentBitmap != null)
             {
-                if(mode != "entropii")
+                if (mode != "entropii")
                 {
                     Window1 dialog = new Window1();
                     dialog.Owner = this;
@@ -119,13 +264,13 @@ namespace Zadanie5
                     else
                         transValue = 0;
                 }
-                switch(mode)
+                switch (mode)
                 {
                     case "reczny":
-                        for(int x=0; x < currentBitmap.Width;x++)
-                            for (int y=0; y < currentBitmap.Height;y++)
+                        for (int x = 0; x < currentBitmap.Width; x++)
+                            for (int y = 0; y < currentBitmap.Height; y++)
                             {
-                                var pixelColor =currentBitmap.GetPixel(x, y);
+                                var pixelColor = currentBitmap.GetPixel(x, y);
                                 double grayScale = (pixelColor.R + pixelColor.G + pixelColor.B) / 3.0;
                                 var newColor = grayScale < transValue ? Color.Black : Color.White;
                                 currentBitmap.SetPixel(x, y, newColor);
@@ -136,47 +281,47 @@ namespace Zadanie5
                             transValue = 100;
                         var bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
                         var grayHistogram = new int[256];
-                        for(int x=0;x<currentBitmap.Width;x++)
-                            for(int y=0;y<currentBitmap.Height; y++)
+                        for (int x = 0; x < currentBitmap.Width; x++)
+                            for (int y = 0; y < currentBitmap.Height; y++)
                             {
                                 var pixelColor = currentBitmap.GetPixel(x, y);
                                 byte grayScale = (byte)((pixelColor.R + pixelColor.G + pixelColor.B) / 3.0);
-                                bitmap.SetPixel(x, y,Color.FromArgb(grayScale,grayScale,grayScale));
+                                bitmap.SetPixel(x, y, Color.FromArgb(grayScale, grayScale, grayScale));
                                 grayHistogram[grayScale]++;
                             }
-                        double maxBlackPixels =transValue*0.01*currentBitmap.Width*currentBitmap.Height;
+                        double maxBlackPixels = transValue * 0.01 * currentBitmap.Width * currentBitmap.Height;
                         double blackPixelSum = 0;
                         byte treshold = 0;
-                        for(int i=0;i<grayHistogram.Length;i++)
+                        for (int i = 0; i < grayHistogram.Length; i++)
                         {
                             treshold = (byte)i;
-                            blackPixelSum+=grayHistogram[i];
-                            if(blackPixelSum >= maxBlackPixels)
+                            blackPixelSum += grayHistogram[i];
+                            if (blackPixelSum >= maxBlackPixels)
                             {
                                 break;
                             }
                         }
-                        for(int x=0;x < currentBitmap.Width;x++)
-                            for(int y=0;y< currentBitmap.Height;y++)
+                        for (int x = 0; x < currentBitmap.Width; x++)
+                            for (int y = 0; y < currentBitmap.Height; y++)
                             {
                                 var pixelColor = bitmap.GetPixel(x, y);
-                                var newColor=pixelColor.R<treshold?Color.Black:Color.White;
-                                currentBitmap.SetPixel(x, y,newColor);
+                                var newColor = pixelColor.R < treshold ? Color.Black : Color.White;
+                                currentBitmap.SetPixel(x, y, newColor);
                             }
                         break;
                     case "entropii":
                         bitmap = new Bitmap(currentBitmap.Width, currentBitmap.Height);
                         grayHistogram = new int[256];
-                        for(int x=0;x<currentBitmap.Width;x++)
-                            for(int y=0;y < currentBitmap.Height;y++)
+                        for (int x = 0; x < currentBitmap.Width; x++)
+                            for (int y = 0; y < currentBitmap.Height; y++)
                             {
-                                var pixelColor=currentBitmap.GetPixel(x, y);
-                                byte grayScale=(byte)((pixelColor.R+pixelColor.G+pixelColor.B)/3.0);
-                                bitmap.SetPixel(x, y,Color.FromArgb(grayScale,grayScale,grayScale));
+                                var pixelColor = currentBitmap.GetPixel(x, y);
+                                byte grayScale = (byte)((pixelColor.R + pixelColor.G + pixelColor.B) / 3.0);
+                                bitmap.SetPixel(x, y, Color.FromArgb(grayScale, grayScale, grayScale));
                                 grayHistogram[grayScale]++;
                             }
                         double entropyTreshold = 0;
-                        double pixelCount =currentBitmap.Width*currentBitmap.Height;
+                        double pixelCount = currentBitmap.Width * currentBitmap.Height;
                         for (int i = 0; i < grayHistogram.Length; i++)
                         {
                             double probability = grayHistogram[i] / pixelCount;
@@ -184,13 +329,13 @@ namespace Zadanie5
                                 entropyTreshold += probability * Math.Log(probability);
                         }
                         entropyTreshold = -entropyTreshold;
-                        for(int x=0;x< currentBitmap.Width;x++)
+                        for (int x = 0; x < currentBitmap.Width; x++)
                         {
-                            for(int y=0;y<currentBitmap.Height;y++)
+                            for (int y = 0; y < currentBitmap.Height; y++)
                             {
                                 var pixelColor = bitmap.GetPixel(x, y);
-                                var newColor=pixelColor.R<entropyTreshold?Color.Black:Color.White;
-                                currentBitmap.SetPixel(x, y,newColor);
+                                var newColor = pixelColor.R < entropyTreshold ? Color.Black : Color.White;
+                                currentBitmap.SetPixel(x, y, newColor);
                             }
                         }
                         break;
@@ -202,9 +347,9 @@ namespace Zadanie5
         private int[] GetEqualizationLut(int[] values)
         {
             double minValue = 0;
-            for(int i=0;i<256;i++)
+            for (int i = 0; i < 256; i++)
             {
-                if(values[i]!=0)
+                if (values[i] != 0)
                 {
                     minValue = values[i];
                     break;
@@ -215,7 +360,7 @@ namespace Zadanie5
             for (int i = 0; i < 256; i++)
             {
                 sum += values[i];
-                result[i] = (int)((sum-minValue)/(currentBitmap.Width*currentBitmap.Height-minValue)*255.0);
+                result[i] = (int)((sum - minValue) / (currentBitmap.Width * currentBitmap.Height - minValue) * 255.0);
             }
 
             return result;
@@ -256,14 +401,36 @@ namespace Zadanie5
             rHistogram = new int[256];
             gHistogram = new int[256];
             bHistogram = new int[256];
-            for(int x=0;x<currentBitmap.Width;x++)
-                for(int y=0;y<currentBitmap.Height;y++)
+            for (int x = 0; x < currentBitmap.Width; x++)
+                for (int y = 0; y < currentBitmap.Height; y++)
                 {
-                    var pixelColor=currentBitmap.GetPixel(x,y);
+                    var pixelColor = currentBitmap.GetPixel(x, y);
                     rHistogram[pixelColor.R]++;
                     gHistogram[pixelColor.G]++;
                     bHistogram[pixelColor.B]++;
                 }
+        }
+        private void convertTo1bitBitmap()
+        {
+            Bitmap temp = new Bitmap(originalBitmap);
+            for (int i = 0; i < originalBitmap.Width; i++)
+            {
+                for (int j = 0; j < originalBitmap.Height; j++)
+                {
+                    var pixelColor = originalBitmap.GetPixel(i, j);
+                    double grayScale = (pixelColor.R + pixelColor.G + pixelColor.B) / 3.0;
+                    var newPixelColor = grayScale < 110 ? Color.Black : Color.White;
+                    temp.SetPixel(i, j, newPixelColor);
+                }
+            }
+            converted = true;
+            currentBitmap = new Bitmap(temp);
+            LoadBitmap();
+        }
+
+        private void convertClicked(object sender, RoutedEventArgs e)
+        {
+            convertTo1bitBitmap();
         }
     }
 }
