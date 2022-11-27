@@ -1,0 +1,32 @@
+﻿<Window x:Class="Zadanie5.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Zadanie5"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Plik">
+                <MenuItem Header="Otwórz" Click="openFile" />
+                <MenuItem Header="Resetuj obraz" Click="Reset" />
+            </MenuItem>
+            <MenuItem Header="Histogram">
+                <MenuItem Header="Rozszerzenie" Click="ApplyHistogram" Tag="roz" />
+                <MenuItem Header="Wyrównanie" Click="ApplyHistogram" Tag="wyr"/>
+            </MenuItem>
+            <MenuItem Header="Binaryzacja">
+                <MenuItem Header="Ręczny próg" Click="ApplyBinarization" Tag="reczny"/>
+                <MenuItem Header="Selekcja Entropii" Click="ApplyBinarization" Tag="entropii"/>
+                <MenuItem Header="Procentowa selekcja czarnego" Click="ApplyBinarization" Tag="czarny"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="9*"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="Img" Source="bitmapImage"/>
+        </Grid>
+    </DockPanel>
+</Window>
