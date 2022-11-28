@@ -99,18 +99,18 @@ namespace Zadanie6
         private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             Ellipse point = new Ellipse();
-            point.Fill = System.Windows.Media.Brushes.LightGray; // ZMIEN
+            point.Fill = System.Windows.Media.Brushes.LightGray;
             point.StrokeThickness = 2;
-            point.Stroke = System.Windows.Media.Brushes.Gray; // ZMIEN
-            point.Width = 16;
-            point.Height = 16;
+            point.Stroke = System.Windows.Media.Brushes.Gray;
+            point.Width = 12;
+            point.Height = 12;
             point.PreviewMouseMove += ControlPoint_MouseMove;
             double x = e.GetPosition(this).X;
             double y = e.GetPosition(this).Y;
             Canvas.SetLeft(point, x - point.Width / 2);
             Canvas.SetTop(point, y - point.Width / 2);
             canvas.Children.Add(point);
-            Canvas.SetZIndex(point, 9999); // nwm o chuj chodzi
+            Canvas.SetZIndex(point, 9999);
             controlPoints.Add(new Point(x, y));
             Ellipses.Add(point);
             indexes.ItemsSource = IndexesList();
@@ -139,8 +139,8 @@ namespace Zadanie6
                 point.Fill = System.Windows.Media.Brushes.LightGray;
                 point.StrokeThickness = 2;
                 point.Stroke = System.Windows.Media.Brushes.Gray;
-                point.Width = 16;
-                point.Height = 16;
+                point.Width = 12;
+                point.Height = 12;
                 point.MouseMove += ControlPoint_MouseMove;
                 double x = item.X, y = item.Y;
                 Canvas.SetLeft(point, x - point.Width / 2);
