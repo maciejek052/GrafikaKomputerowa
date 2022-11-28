@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,10 +11,13 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
+using Path = System.Windows.Shapes.Path;
 
 namespace Zadanie6
 {
@@ -24,9 +29,8 @@ namespace Zadanie6
         bool bezier = true, shapes = false;
         List<Point> controlPoints = new List<Point>();
         List<Ellipse> Ellipses = new List<Ellipse>();
-
-        List<Point> Points;
         List<List<Line>> Shapes;
+        List<Point> Points;
         List<Line> SelectShape;
 
         public MainWindow()
@@ -554,6 +558,67 @@ namespace Zadanie6
                     line.Y1 = Vector.Y + (Y1 - Vector.Y) * Scale;
                     line.Y2 = Vector.Y + (Y2 - Vector.Y) * Scale;
                 }
+            }
+        }
+        public void openFile(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Zapisane obrazy|*.sav"; 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var filePath = openFileDialog.FileName;
+                FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read);
+                Canvas saved = XamlReader.Load(fs) as Canvas;
+                fs.Close();
+                while (saved.Children.Count > 0)
+                {
+                    UIElement uie = saved.Children[0];
+                    saved.Children.Remove(uie);
+                    canvas.Children.Add(uie);
+                }
+                XmlSerializer ctrlPoints = new XmlSerializer(typeof(List<Point>));
+                //XmlSerializer elipses = new XmlSerializer(typeof(List<Ellipse>)); 
+                XmlSerializer points = new XmlSerializer(typeof(List<Point>));
+                //XmlSerializer shapes = new XmlSerializer(typeof(List<List<Line>>));
+                //XmlSerializer selectShape = new XmlSerializer(typeof(List<Line>));
+                fs = File.Open(filePath + ".001", FileMode.Open, FileAccess.Read);
+                controlPoints = (List<Point>)ctrlPoints.Deserialize(fs);
+                fs.Close();
+                fs = File.Open(filePath + ".003", FileMode.Open, FileAccess.Read);
+                Points = (List<Point>)points.Deserialize(fs);
+                fs.Close(); 
+            }
+        }
+        public void saveFile(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Zapisane obrazy|*.sav";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var filePath = saveFileDialog.FileName;
+                FileStream fs = File.Open(filePath, FileMode.Create);
+                XamlWriter.Save(canvas, fs);
+                fs.Close();
+                XmlSerializer ctrlPoints = new XmlSerializer(typeof(List<Point>));
+                //XmlSerializer elipses = new XmlSerializer(typeof(List<Ellipse>));
+                XmlSerializer points = new XmlSerializer(typeof(List<Point>));
+                //XmlSerializer shapes = new XmlSerializer(typeof(List<List<Line>>));
+                //XmlSerializer selectShape = new XmlSerializer(typeof(List<Line>));
+                fs = File.Open(filePath + ".001", FileMode.Create);
+                ctrlPoints.Serialize(fs, controlPoints);
+                fs.Close(); 
+                fs = File.Open(filePath + ".002", FileMode.Create);
+                // elipses.Serialize(fs, Ellipses);
+                fs.Close();
+                fs = File.Open(filePath + ".003", FileMode.Create);
+                points.Serialize(fs, Points); 
+                fs.Close();
+                fs = File.Open(filePath + ".004", FileMode.Create);
+                //shapes.Serialize(fs, Shapes);
+                fs.Close();
+                fs = File.Open(filePath + ".005", FileMode.Create);
+                //selectShape.Serialize(fs, SelectShape);
+                fs.Close(); 
             }
         }
     }
