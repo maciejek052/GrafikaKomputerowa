@@ -12,7 +12,8 @@
             <ColumnDefinition Width="4*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
-            <Canvas MouseRightButtonDown="Canvas_MouseRightButtonDown" Background="White" x:Name="canvas"></Canvas>
+            <Canvas MouseRightButtonDown="Canvas_MouseRightButtonDown"
+                    MouseLeftButtonDown="canvas_MouseLeftButtonDown" MouseMove="EditShape" Background="White" x:Name="canvas"></Canvas>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -37,15 +38,23 @@
                 <TextBox Margin="5" Grid.Column="1" Name="Y">y</TextBox>
             </Grid>
             <Button Grid.Row="1" Margin="5" Click="Reset_Click">Resetuj</Button>
-            <GroupBox Grid.Row="2" Header="Bezier" Margin="5">
+            <Grid Grid.Row="2" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <RadioButton IsChecked="true" Grid.Column="0" Name="BezierSelected" Click="BezierSelected_Click">Bezier</RadioButton>
+                <RadioButton Grid.Column="1" Name="ShapesSelected" Click="ShapesSelected_Click">Figury</RadioButton>
+            </Grid>
+            <GroupBox Grid.Row="3" Header="Bezier" Margin="5" Name="BezierBox">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Margin="5" Click="Draw_Click">Rysuj</Button>
-                    <Button  Grid.Row="1" Margin="5" Click="AddPoint_Click">Dodaj</Button>
+                    <Button Grid.Row="0" Margin="5" Click="Draw_Click">Narysuj krzywą</Button>
+                    <Button  Grid.Row="1" Margin="5" Click="AddPoint_Click">Dodaj punkt</Button>
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition></ColumnDefinition>
@@ -54,6 +63,37 @@
                         <ComboBox Margin="5" Grid.Column="0" Name="indexes"></ComboBox>
                         <Button Margin="5" Grid.Column="1" Click="Edit_Click">Edytuj</Button>
                     </Grid>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="4" Header="Figury" Margin="5" Name="ShapesBox">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Margin="5" Name="AddPointBtn" Click="AddPointBtn_Click">Dodaj punkt</Button>
+                    <Button Grid.Row="1" Margin="5" Name="finishShapeBtn" Click="finishShapeBtn_Click">Zakończ figurę</Button>
+                    <Button Grid.Row="2" Margin="5" Name="moveBtn" Click="moveBtn_Click">Przesuń o wektor</Button>
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Margin="5" Grid.Column="0" Name="rotateTextbox"></TextBox>
+                        <Button Grid.Column="1" Margin="5" Name="rotateBtn" Click="rotateBtn_Click">Obróć</Button>
+                    </Grid>
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Margin="5" Grid.Column="0" Name="scaleTextbox"></TextBox>
+                        <Button Grid.Column="1" Margin="5" Name="scaleBtn" Click="scaleBtn_Click">Skaluj</Button>
+                    </Grid>
+
                 </Grid>
             </GroupBox>
         </Grid>
