@@ -1,0 +1,48 @@
+﻿<Window x:Class="Zadanie6.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Zadanie6"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Canvas MouseRightButtonDown="Canvas_MouseRightButtonDown" Background="White" x:Name="canvas"></Canvas>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Button Margin="5" Grid.Row="0" Click="Draw_Click">Rysuj</Button>
+            <Button Margin="5" Grid.Row="1" Click="Reset_Click">Resetuj</Button>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBox Margin="5" Grid.Column="0" Name="X">x</TextBox>
+                <TextBox Margin="5" Grid.Column="1" Name="Y">y</TextBox>
+            </Grid>
+            <Button Margin="5" Grid.Row="4" Click="AddPoint_Click">Dodaj</Button>
+            <Grid Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <ComboBox Margin="5" Grid.Column="0" Name="indexes"></ComboBox>
+                <Button Margin="5" Grid.Column="1" Click="Edit_Click">Edytuj</Button>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
