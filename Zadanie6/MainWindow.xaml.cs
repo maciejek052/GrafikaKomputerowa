@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,9 +28,10 @@ namespace Zadanie6
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool bezier = true, shapes = false;
+        bool bezier = true, shapes = false, loadingFromFile = false;
         List<Point> controlPoints = new List<Point>();
         List<Ellipse> Ellipses = new List<Ellipse>();
+
         List<List<Line>> Shapes;
         List<Point> Points;
         List<Line> SelectShape;
@@ -130,8 +133,8 @@ namespace Zadanie6
                 point.Fill = System.Windows.Media.Brushes.LightGray;
                 point.StrokeThickness = 2;
                 point.Stroke = System.Windows.Media.Brushes.Gray;
-                point.Width = 12;
-                point.Height = 12;
+                point.Width = 20;
+                point.Height = 20;
                 point.PreviewMouseMove += ControlPoint_MouseMove;
                 double x = e.GetPosition(this).X;
                 double y = e.GetPosition(this).Y;
@@ -179,7 +182,14 @@ namespace Zadanie6
         }
         private void Draw_Click(object sender, RoutedEventArgs e)
         {
-            canvas.Children.Clear();
+            if (!loadingFromFile)
+            {
+                canvas.Children.Clear();
+            }
+            else
+            {
+                loadingFromFile = true;
+            }
             DrawPoints(controlPoints);
             for (int i = canvas.Children.Count - 1; i >= 0; i--)
             {
@@ -193,8 +203,8 @@ namespace Zadanie6
                 point.Fill = System.Windows.Media.Brushes.LightGray;
                 point.StrokeThickness = 2;
                 point.Stroke = System.Windows.Media.Brushes.Gray;
-                point.Width = 12;
-                point.Height = 12;
+                point.Width = 20;
+                point.Height = 20;
                 point.MouseMove += ControlPoint_MouseMove;
                 double x = item.X, y = item.Y;
                 Canvas.SetLeft(point, x - point.Width / 2);
@@ -253,8 +263,8 @@ namespace Zadanie6
                 point.Fill = System.Windows.Media.Brushes.LightGray;
                 point.StrokeThickness = 2;
                 point.Stroke = System.Windows.Media.Brushes.Gray;
-                point.Width = 12;
-                point.Height = 12;
+                point.Width = 20;
+                point.Height = 20;
                 point.MouseMove += ControlPoint_MouseMove;
                 double x = p.X, y = p.Y;
                 Canvas.SetLeft(point, x - point.Width / 2);
@@ -577,16 +587,15 @@ namespace Zadanie6
                     canvas.Children.Add(uie);
                 }
                 XmlSerializer ctrlPoints = new XmlSerializer(typeof(List<Point>));
-                //XmlSerializer elipses = new XmlSerializer(typeof(List<Ellipse>)); 
                 XmlSerializer points = new XmlSerializer(typeof(List<Point>));
-                //XmlSerializer shapes = new XmlSerializer(typeof(List<List<Line>>));
-                //XmlSerializer selectShape = new XmlSerializer(typeof(List<Line>));
-                fs = File.Open(filePath + ".001", FileMode.Open, FileAccess.Read);
+                fs = File.Open(filePath + "0", FileMode.Open, FileAccess.Read);
                 controlPoints = (List<Point>)ctrlPoints.Deserialize(fs);
                 fs.Close();
-                fs = File.Open(filePath + ".003", FileMode.Open, FileAccess.Read);
+                fs = File.Open(filePath + "1", FileMode.Open, FileAccess.Read);
                 Points = (List<Point>)points.Deserialize(fs);
-                fs.Close(); 
+                fs.Close();
+                loadingFromFile = true;
+                Draw_Click(null, null);
             }
         }
         public void saveFile(object sender, RoutedEventArgs e)
@@ -600,25 +609,13 @@ namespace Zadanie6
                 XamlWriter.Save(canvas, fs);
                 fs.Close();
                 XmlSerializer ctrlPoints = new XmlSerializer(typeof(List<Point>));
-                //XmlSerializer elipses = new XmlSerializer(typeof(List<Ellipse>));
                 XmlSerializer points = new XmlSerializer(typeof(List<Point>));
-                //XmlSerializer shapes = new XmlSerializer(typeof(List<List<Line>>));
-                //XmlSerializer selectShape = new XmlSerializer(typeof(List<Line>));
-                fs = File.Open(filePath + ".001", FileMode.Create);
+                fs = File.Open(filePath + "0", FileMode.Create);
                 ctrlPoints.Serialize(fs, controlPoints);
-                fs.Close(); 
-                fs = File.Open(filePath + ".002", FileMode.Create);
-                // elipses.Serialize(fs, Ellipses);
                 fs.Close();
-                fs = File.Open(filePath + ".003", FileMode.Create);
+                fs = File.Open(filePath + "1", FileMode.Create);
                 points.Serialize(fs, Points); 
                 fs.Close();
-                fs = File.Open(filePath + ".004", FileMode.Create);
-                //shapes.Serialize(fs, Shapes);
-                fs.Close();
-                fs = File.Open(filePath + ".005", FileMode.Create);
-                //selectShape.Serialize(fs, SelectShape);
-                fs.Close(); 
             }
         }
     }
