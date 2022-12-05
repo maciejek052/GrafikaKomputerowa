@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace Zadanie7
 {
@@ -28,7 +29,7 @@ namespace Zadanie7
     {
         double? green;
         BitmapImage bitmapImage;
-        Bitmap bitmap;
+        Bitmap originalBitmap, bitmap; 
         int wspolmax_x;
         int wspolmax_y;
         ulong maxi=0;
@@ -36,13 +37,42 @@ namespace Zadanie7
         System.Collections.Generic.Queue<ulong> q = new System.Collections.Generic.Queue<ulong>();
         public class Graph
         {
-            public LinkedList<ulong>[]? listaSasiedztwa;
+            public LinkedList<ulong>[] listaSasiedztwa = new LinkedList<ulong>[99999999];
             public ulong Size;
         }
-        Graph greens;
+        public void initializeList()
+        {
+            // wywalało błąd że wychodzi poza zakres to powiększyłem o jeden rząd pikseli
+            for (int i = 0; i < (bitmap.Width * bitmap.Height) + bitmap.Width; i++)
+            {
+                greens.listaSasiedztwa[i] = new LinkedList<ulong>();
+            }
+        }
+        Graph greens = new Graph();
         public MainWindow()
         {
             InitializeComponent();
+        }
+        private void LoadBitmap()
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                bitmap.Save(memoryStream, ImageFormat.Jpeg);
+                memoryStream.Position = 0;
+                var bitmapImage2 = new BitmapImage();
+                bitmapImage2.BeginInit();
+                bitmapImage2.StreamSource = memoryStream;
+                bitmapImage2.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage2.EndInit();
+                bitmapImage2.Freeze();
+                bitmapImage = bitmapImage2;
+                Img.Source = bitmapImage;
+            }
+        }
+        private void Reset(object sender, RoutedEventArgs e)
+        {
+            bitmap = new Bitmap(originalBitmap);
+            LoadBitmap();
         }
         public void openFile(object sender, RoutedEventArgs e)
         {
@@ -51,23 +81,15 @@ namespace Zadanie7
             openFileDialog.Filter = "JPG|*.jpg";
             if(openFileDialog.ShowDialog()==true)
             {
-                bitmap=new Bitmap(System.Drawing.Image.FromFile(openFileDialog.FileName));
+                originalBitmap = new Bitmap(System.Drawing.Image.FromFile(openFileDialog.FileName));
+                bitmap = new Bitmap(originalBitmap);
+                LoadBitmap(); 
                 greens.Size=(ulong)bitmap.Width * (ulong)bitmap.Height;
-                green = GetGreen();
-                addingcorners();
-                maxGreen();
-                BitmapImage jpg = new BitmapImage();
-                changecolor();
-                jpg.BeginInit();
-                jpg.UriSource = new Uri(openFileDialog.FileName);
-                jpg.CacheOption = BitmapCacheOption.OnLoad;
-                jpg.EndInit();
-                bitmapImage = jpg;
-
             }
         }
         private double GetGreen()
         {
+            var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             ulong pixelscount=(ulong)bitmap.Width*(ulong)bitmap.Height;
             ulong greencount = 0;
             for(int i = 0; i < bitmap.Width; i++)
@@ -77,13 +99,24 @@ namespace Zadanie7
                     if(pixelColor.G>100 && pixelColor.G>pixelColor.R && pixelColor.G>pixelColor.B )
                     {
                         greencount++;
+                        var newColor = System.Drawing.Color.Black;
+                        tmp.SetPixel(i,j, newColor);
+
                     }
+                    else
+                    {
+                        var newColor = System.Drawing.Color.White;
+                        tmp.SetPixel(i, j, newColor);
+                    }
+
                 }
+            bitmap = tmp; 
+            LoadBitmap();
             return 100.0 * greencount / pixelscount;
         }
         private void maxGreen()
         {
-            bool[] visited=new bool[greens.Size];
+            bool[] visited=new bool[greens.Size + (ulong)bitmap.Width]; // greens.Size
             for (int i = 0; i < bitmap.Width; i++)
             {
                 for (int j = 0; j < bitmap.Height; j++)
@@ -91,6 +124,7 @@ namespace Zadanie7
                     var pixelColor = bitmap.GetPixel(i, j);
                     if (pixelColor.G > 100 && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
                     {
+                        //Trace.WriteLine("Wykryto zielone w " + i + "x" + j); 
                         ulong startowy = (ulong)((j * bitmap.Width) + i);
                         q.Enqueue(startowy);
                         visited[startowy] = true;
@@ -101,12 +135,12 @@ namespace Zadanie7
                             wspolmax_x=(int)(startowy)%bitmap.Width;
                             wspolmax_y = (int)(startowy)/ bitmap.Height;
                         }
-                        while(q.Count > 0)
+                        while(q.Any())
                         {
                             ulong v=q.Dequeue();
                             foreach(ulong obecny in greens.listaSasiedztwa[v])
                             {
-                                if(visited[obecny])
+                                if(visited[obecny]==false)
                                 {
                                     visited[obecny] = true;
                                     q.Enqueue(obecny);
@@ -128,8 +162,12 @@ namespace Zadanie7
         }
         private void changecolor()
         {
-            bool[] visited = new bool[greens.Size];
+            var tmp = new Bitmap(bitmap.Width, bitmap.Height);
+            bool[] visited = new bool[greens.Size]; 
+
+            // imo jest błąd albo w tym albo w liście
             ulong startowy = (ulong)(wspolmax_y*bitmap.Width+wspolmax_x);
+
             q.Enqueue(startowy);
             visited[startowy] = true;
             while (q.Count > 0)
@@ -137,20 +175,41 @@ namespace Zadanie7
                 ulong v = q.Dequeue();
                 foreach (ulong obecny in greens.listaSasiedztwa[v])
                 {
-                    if (visited[obecny])
+                    if (visited[obecny] == false)
                     {
                         visited[obecny] = true;
                         q.Enqueue(obecny);
-                        var newColor = System.Drawing.Color.Black;
-                        bitmap.SetPixel((int)obecny%bitmap.Width,(int)obecny/bitmap.Height , newColor);
+                        var newColor = System.Drawing.Color.Green;
+                        int w = (int)obecny % bitmap.Width;
+                        int h = (int)obecny / bitmap.Height;
+                        tmp.SetPixel(w,h, newColor);
+
                     }
                 }
             }
+            bitmap = tmp;
+            LoadBitmap();
         }
+
+        private void detectPixel_Click(object sender, RoutedEventArgs e)
+        {
+            green = GetGreen();
+            MessageBox.Show("Ilość zieleni: " + green);
+        }
+
+        private void bfs_Click(object sender, RoutedEventArgs e)
+        {
+            initializeList(); 
+            addingcorners();
+            maxGreen();
+            changecolor();
+        }
+
         private void addingcorners()
         {
             for (int i = 0; i < bitmap.Width; i++)
             {
+                greens.listaSasiedztwa[i] = new LinkedList<ulong>(); 
                 for (int j = 0; j < bitmap.Height; j++)
                 {
                     var pixelColor = bitmap.GetPixel(i, j);
@@ -222,6 +281,10 @@ namespace Zadanie7
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
                             }
                         }
+                        else if(j == bitmap.Height - 1 && i == bitmap.Width - 1)
+                        {
+                            return; 
+                        }
                         else
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
@@ -230,12 +293,16 @@ namespace Zadanie7
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
                             }
-                            pixelColor2 = bitmap.GetPixel(i + 1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (i+1 < bitmap.Width)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
-                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                pixelColor2 = bitmap.GetPixel(i + 1, j);
+                                if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                                {
+                                    greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
+                                    greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                }
                             }
+
                         }
                     }
                 }

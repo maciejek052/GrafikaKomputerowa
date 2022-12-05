@@ -10,8 +10,12 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Plik">
                 <MenuItem Header="Otwórz" Click="openFile" />
+                <MenuItem Header="Resetuj obraz" Click="Reset" />
             </MenuItem>
+            <MenuItem Header="Wykrywanie zielonych pikseli" Click="detectPixel_Click"/>
+            <MenuItem Header="Wykrywanie grupy pikseli (BFS)" Click="bfs_Click"/>
         </Menu>
+        
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="20*"></ColumnDefinition>
