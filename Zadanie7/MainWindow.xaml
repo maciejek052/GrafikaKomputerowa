@@ -10,6 +10,8 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Plik">
                 <MenuItem Header="Otwórz" Click="openFile" />
+                <MenuItem Header="Zmień parametr R wykrywania zieleni" Click="parameter_Click" />
+                <MenuItem Header="Pokazuj tylko zielony kolor przy BFSie" Name="onlyGreenToggle" IsCheckable="True" />
                 <MenuItem Header="Resetuj obraz" Click="Reset" />
             </MenuItem>
             <MenuItem Header="Wykrywanie zielonych pikseli" Click="detectPixel_Click"/>
@@ -19,7 +21,6 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="20*"></ColumnDefinition>
-                <ColumnDefinition Width="4*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Image x:Name="Img" Source="bitmapImage"/>
         </Grid>

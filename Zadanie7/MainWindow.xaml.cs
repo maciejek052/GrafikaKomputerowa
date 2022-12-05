@@ -34,6 +34,7 @@ namespace Zadanie7
         int wspolmax_y;
         ulong maxi=0;
         ulong obecnymaxi;
+        int R_parameter = 100; 
         System.Collections.Generic.Queue<ulong> q = new System.Collections.Generic.Queue<ulong>();
         public class Graph
         {
@@ -96,7 +97,7 @@ namespace Zadanie7
                 for(int j = 0; j < bitmap.Height; j++)
                 {
                     var pixelColor=bitmap.GetPixel(i, j);
-                    if(pixelColor.G>100 && pixelColor.G>pixelColor.R && pixelColor.G>pixelColor.B )
+                    if(pixelColor.G > R_parameter && pixelColor.G>pixelColor.R && pixelColor.G>pixelColor.B )
                     {
                         greencount++;
                         var newColor = System.Drawing.Color.Black;
@@ -118,13 +119,13 @@ namespace Zadanie7
         {
             var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             bool[] visited=new bool[greens.Size + (ulong)bitmap.Width]; // greens.Size
-            maxi = 0;
+            maxi = 0; 
             for (int i = 0; i < bitmap.Width; i++)
             {
                 for (int j = 0; j < bitmap.Height; j++)
                 {
                     var pixelColor = bitmap.GetPixel(i, j);
-                    if (pixelColor.G > 100 && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
+                    if (pixelColor.G > R_parameter && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
                     {
                         //Trace.WriteLine("Wykryto zielone w " + i + "x" + j); 
                         ulong startowy = (ulong)((j * bitmap.Width) + i);
@@ -173,7 +174,8 @@ namespace Zadanie7
         {
             var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             bool[] visited = new bool[greens.Size]; 
-            tmp= new Bitmap(originalBitmap);
+            if (!onlyGreenToggle.IsChecked)
+                tmp = new Bitmap(originalBitmap);
             // imo jest błąd albo w tym albo w liście
             ulong startowy = (ulong)(wspolmax_y*bitmap.Width+wspolmax_x);
             Trace.WriteLine("Startowy "+ wspolmax_x+ " "+ wspolmax_y);
@@ -193,27 +195,42 @@ namespace Zadanie7
                         int h = (int)obecny / bitmap.Width;
                         //Trace.WriteLine("Zmianakoloru wspolrzedna " + w + "x" + h);
                         tmp.SetPixel(w, h, newColor);
-
                     }
                 }
             }
-            bitmap = tmp;
+            bitmap = tmp; 
             LoadBitmap();
 
         }
 
         private void detectPixel_Click(object sender, RoutedEventArgs e)
         {
-            green = GetGreen();
-            MessageBox.Show("Ilość zieleni: " + green);
+            if (bitmap != null)
+            {
+                green = GetGreen();
+                MessageBox.Show("Ilość zielonych pikseli: " + green + "%");
+            }
         }
 
         private void bfs_Click(object sender, RoutedEventArgs e)
         {
-            initializeList(); 
-            addingcorners();
-            maxGreen();
-            changecolor();
+            if (bitmap != null)
+            {
+                initializeList();
+                addingcorners();
+                maxGreen();
+                changecolor();
+            }
+        }
+
+        private void parameter_Click(object sender, RoutedEventArgs e)
+        {
+            ParameterDialog dialog = new ParameterDialog(R_parameter);
+            dialog.Owner = this;
+            if (dialog.ShowDialog() == true)
+            {
+                R_parameter = dialog.transformationValue; 
+            }
         }
 
         private void addingcorners()
@@ -224,12 +241,12 @@ namespace Zadanie7
                 for (int j = 0; j < bitmap.Height; j++)
                 {
                     var pixelColor = bitmap.GetPixel(i, j);
-                    if (pixelColor.G > 100 && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
+                    if (pixelColor.G > R_parameter && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
                     {
                         if(i==0 && j!= bitmap.Height-1)//lewa krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j+1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j+1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j+1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
@@ -240,7 +257,7 @@ namespace Zadanie7
                                 //Trace.WriteLine("dodano do listy w " + i + " "+ j + " x " + i + " " + z);
                             }
                             pixelColor2= bitmap.GetPixel(i+1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i+1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i+1)].AddLast((ulong)(j * bitmap.Width + i));
@@ -254,7 +271,7 @@ namespace Zadanie7
                         else if (i == 0 && j == bitmap.Height - 1)//lewa dolny rog 
                         {
                             var pixelColor2 = bitmap.GetPixel(i + 1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
@@ -268,7 +285,7 @@ namespace Zadanie7
                         else if(i== bitmap.Width-1 && j != bitmap.Height - 1)//prawa krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
@@ -282,7 +299,7 @@ namespace Zadanie7
                         else if(j==0 && i!= bitmap.Width-1)//gorna krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
@@ -293,7 +310,7 @@ namespace Zadanie7
                                 //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + i + " " + z);
                             }
                             pixelColor2 = bitmap.GetPixel(i + 1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
@@ -307,7 +324,7 @@ namespace Zadanie7
                         else if(j==0 && i==bitmap.Width-1)//prawa góra róg
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
@@ -321,7 +338,7 @@ namespace Zadanie7
                         else if(j==bitmap.Height-1 && i != bitmap.Width - 1)//dolna krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i + 1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
@@ -339,7 +356,7 @@ namespace Zadanie7
                         else //srodek
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
@@ -351,7 +368,7 @@ namespace Zadanie7
                             }
 
                             pixelColor2 = bitmap.GetPixel(i + 1, j);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            if (pixelColor2.G > R_parameter && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
