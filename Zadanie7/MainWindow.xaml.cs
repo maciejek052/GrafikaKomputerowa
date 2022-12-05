@@ -116,6 +116,7 @@ namespace Zadanie7
         }
         private void maxGreen()
         {
+            var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             bool[] visited=new bool[greens.Size + (ulong)bitmap.Width]; // greens.Size
             for (int i = 0; i < bitmap.Width; i++)
             {
@@ -133,7 +134,7 @@ namespace Zadanie7
                         {
                             maxi=obecnymaxi;
                             wspolmax_x=(int)(startowy)%bitmap.Width;
-                            wspolmax_y = (int)(startowy)/ bitmap.Height;
+                            wspolmax_y = (int)(startowy)/ bitmap.Width;
                         }
                         while(q.Any())
                         {
@@ -144,12 +145,17 @@ namespace Zadanie7
                                 {
                                     visited[obecny] = true;
                                     q.Enqueue(obecny);
+                                    //var newColor = System.Drawing.Color.Green;
+                                    //int w = (int)obecny % bitmap.Width;
+                                    //int h = (int)obecny / bitmap.Height;
+                                    //Trace.WriteLine("Zmianakoloru wspolrzedna " + w + "x" + h);
+                                    //tmp.SetPixel(w, h, newColor);
                                     obecnymaxi++;
                                     if (obecnymaxi > maxi)
                                     {
                                         maxi = obecnymaxi;
                                         wspolmax_x = (int)(obecny) % bitmap.Width;
-                                        wspolmax_y = (int)(obecny) / bitmap.Height;
+                                        wspolmax_y = (int)(obecny) / bitmap.Width;
                                     }
                                 }
                             }
@@ -159,15 +165,17 @@ namespace Zadanie7
                     
                 }
             }
+            bitmap = tmp;
+            LoadBitmap();
         }
         private void changecolor()
         {
             var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             bool[] visited = new bool[greens.Size]; 
-
+            tmp= new Bitmap(originalBitmap);
             // imo jest błąd albo w tym albo w liście
             ulong startowy = (ulong)(wspolmax_y*bitmap.Width+wspolmax_x);
-
+            Trace.WriteLine("Startowy "+ wspolmax_x+ " "+ wspolmax_y);
             q.Enqueue(startowy);
             visited[startowy] = true;
             while (q.Count > 0)
@@ -181,14 +189,16 @@ namespace Zadanie7
                         q.Enqueue(obecny);
                         var newColor = System.Drawing.Color.Green;
                         int w = (int)obecny % bitmap.Width;
-                        int h = (int)obecny / bitmap.Height;
-                        tmp.SetPixel(w,h, newColor);
+                        int h = (int)obecny / bitmap.Width;
+                        //Trace.WriteLine("Zmianakoloru wspolrzedna " + w + "x" + h);
+                        tmp.SetPixel(w, h, newColor);
 
                     }
                 }
             }
             bitmap = tmp;
             LoadBitmap();
+
         }
 
         private void detectPixel_Click(object sender, RoutedEventArgs e)
@@ -215,92 +225,140 @@ namespace Zadanie7
                     var pixelColor = bitmap.GetPixel(i, j);
                     if (pixelColor.G > 100 && pixelColor.G > pixelColor.R && pixelColor.G > pixelColor.B)
                     {
-                        if(i==0 && j!= bitmap.Height-1)
+                        if(i==0 && j!= bitmap.Height-1)//lewa krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j+1);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
-                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j+1) * bitmap.Width + i));
+                                greens.listaSasiedztwa[(ulong)(((j+1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = (j + 1) * bitmap.Width + i;
+                                int x = j * bitmap.Width + i;
+                                int z = j + 1;
+                                //Trace.WriteLine("dodano do listy w "+ x +" x "+ y);
+                                //Trace.WriteLine("dodano do listy w " + i + " "+ j + " x " + i + " " + z);
                             }
                             pixelColor2= bitmap.GetPixel(i+1, j);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j+1) * bitmap.Width + i));
-                                greens.listaSasiedztwa[(ulong)(((j+1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i+1));
+                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i+1)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = j * bitmap.Width + i+1;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = i + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + z + " " + j);
                             }
                         }
-                        else if (i == 0 && j == bitmap.Height - 1)
+                        else if (i == 0 && j == bitmap.Height - 1)//lewa dolny rog 
                         {
                             var pixelColor2 = bitmap.GetPixel(i + 1, j);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
+                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = j * bitmap.Width + i + 1;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = i + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + z + " " + j);
+                            }
+                        }
+                        else if(i== bitmap.Width-1 && j != bitmap.Height - 1)//prawa krawedz
+                        {
+                            var pixelColor2 = bitmap.GetPixel(i, j + 1);
+                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
                                 greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = (j + 1) * bitmap.Width + i;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = j + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + i + " " + z);
                             }
                         }
-                        else if(i== bitmap.Width-1 && j == bitmap.Height - 1)
+                        else if(j==0 && i!= bitmap.Width-1)//gorna krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
-                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
-                            }
-                        }
-                        else if(j==0 && i!= bitmap.Width-1)
-                        {
-                            var pixelColor2 = bitmap.GetPixel(i, j + 1);
-                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
-                            {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
-                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
+                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = (j + 1) * bitmap.Width + i;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = j + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + i + " " + z);
                             }
                             pixelColor2 = bitmap.GetPixel(i + 1, j);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
-                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
+                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = j * bitmap.Width + i + 1;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = i + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + z + " " + j);
                             }
                         }
-                        else if(j==0 && i==bitmap.Width-1)
+                        else if(j==0 && i==bitmap.Width-1)//prawa góra róg
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
-                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
+                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = (j + 1) * bitmap.Width + i;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = j + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + i + " " + z);
                             }
                         }
-                        else if(j==bitmap.Height-1 && i != bitmap.Width - 1)
+                        else if(j==bitmap.Height-1 && i != bitmap.Width - 1)//dolna krawedz
                         {
                             var pixelColor2 = bitmap.GetPixel(i + 1, j);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
-                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
-                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
+                                greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = j * bitmap.Width + i + 1;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = i + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + z + " " + j);
                             }
                         }
-                        else if(j == bitmap.Height - 1 && i == bitmap.Width - 1)
+                        else if(j == bitmap.Height - 1 && i == bitmap.Width - 1)//dol lewa
                         {
                             return; 
                         }
-                        else
+                        else //srodek
                         {
                             var pixelColor2 = bitmap.GetPixel(i, j + 1);
                             if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
                             {
+                                greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
+                                greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
+                                int y = (j + 1) * bitmap.Width + i;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = j + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + i + " " + z);
+                            }
+
+                            pixelColor2 = bitmap.GetPixel(i + 1, j);
+                            if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
+                            {
                                 greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)(j * bitmap.Width + i + 1));
                                 greens.listaSasiedztwa[(ulong)((j * bitmap.Width) + i + 1)].AddLast((ulong)(j * bitmap.Width + i));
-                            }
-                            if (i+1 < bitmap.Width)
-                            {
-                                pixelColor2 = bitmap.GetPixel(i + 1, j);
-                                if (pixelColor2.G > 100 && pixelColor2.G > pixelColor2.R && pixelColor2.G > pixelColor2.B)
-                                {
-                                    greens.listaSasiedztwa[j * bitmap.Width + i].AddLast((ulong)((j + 1) * bitmap.Width + i));
-                                    greens.listaSasiedztwa[(ulong)(((j + 1) * bitmap.Width) + i)].AddLast((ulong)(j * bitmap.Width + i));
-                                }
+                                int y = j * bitmap.Width + i + 1;
+                                int x = j * bitmap.Width + i;
+                                //Trace.WriteLine("dodano do listy w " + x + " x " + y);
+                                int z = i + 1;
+                                //Trace.WriteLine("dodano do listy w " + i + " " + j + " x " + z + " " + j);
                             }
 
                         }
