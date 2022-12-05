@@ -118,6 +118,7 @@ namespace Zadanie7
         {
             var tmp = new Bitmap(bitmap.Width, bitmap.Height);
             bool[] visited=new bool[greens.Size + (ulong)bitmap.Width]; // greens.Size
+            maxi = 0;
             for (int i = 0; i < bitmap.Width; i++)
             {
                 for (int j = 0; j < bitmap.Height; j++)
